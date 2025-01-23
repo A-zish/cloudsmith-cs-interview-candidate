@@ -33,18 +33,18 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: arti-python
-          path: build_artifacts/  # Updated path here to 'build_artifacts/'
+          name: python-package
+          path: dist/  # Updated path here to 'dist/'
 
       # List directory contents (for debugging)
       - name: List directory contents
-        run: ls -la build_artifacts/  # Updated path here to 'build_artifacts/'
+        run: ls -la dist/  # Updated path here to 'dist/'
 
       # Push package to Cloudsmith
       - name: Push package to Cloudsmith
         run: |
-          if ! ls build_artifacts/*.tar.gz 1> /dev/null 2>&1; then  # Updated path here to 'build_artifacts/'
+          if ! ls dist/*.tar.gz 1> /dev/null 2>&1; then  # Updated path here to 'dist/'
             echo "No package found to upload"
             exit 1
           fi
-          cloudsmith push python ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_REPOSITORY }} build_artifacts/*.tar.gz --republish  # Updated path here to 'build_artifacts/'
+          cloudsmith push python ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_REPOSITORY }} dist/*.tar.gz --republish  # Updated path here to 'dist/'
