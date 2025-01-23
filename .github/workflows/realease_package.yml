@@ -16,7 +16,7 @@ permissions:
 env:
   CLOUDSMITH_NAMESPACE: Interview-Ashish-Dwivedi
   CLOUDSMITH_REPOSITORY: ci-cdtrial
-  CLOUDSMITH_SERVICE_SLUG: ci-cdtrial
+  #CLOUDSMITH_SERVICE_SLUG: ci-cdtrial
 
 jobs:
   publish:
