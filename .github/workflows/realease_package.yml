@@ -16,24 +16,28 @@ permissions:
 env:
   CLOUDSMITH_NAMESPACE: interview-ashish-dwivedi
   CLOUDSMITH_REPOSITORY: ci-cdtrial
-  #CLOUDSMITH_SERVICE_SLUG: ci-cdtrial
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
       # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install Cloudsmith CLI
+      # Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # Install Cloudsmith CLI and dependencies
       - name: Install Cloudsmith CLI
         run: |
           python -m pip install --upgrade pip
           pip install cloudsmith-cli twine
 
-      # Download artifact from previous workflow (if applicable)
+      # Download artifact from previous workflow
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -51,7 +55,6 @@ jobs:
             --username "${{ github.actor }}" \
             --oidc-provider github \
             --oidc-token "${{ steps.id-token.outputs.id-token }}"
-
       # List and verify package contents
       - name: Verify package
         run: |
@@ -64,13 +67,34 @@ jobs:
             exit 1
           fi
 
+      # Generate Cloudsmith temporary token
+      - name: Generate Cloudsmith Token
+        env:
+          CLOUDSMITH_USERNAME: interview-ashish-dwivedi
+          CLOUDSMITH_TOKEN: 5ef6bb33d4637bb3ceff3b4d97151088977f5840
+        run: |
+          # Request a temporary token from Cloudsmith
+          TOKEN_RESPONSE=$(curl -s \
+            -H "Authorization: Token $CLOUDSMITH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"description": "GitHub Actions Token", "duration": 3600}' \
+            "https://cloudsmith.io/api/v1/tokens/generate/")
+          
+          # Extract the token (this is a simplified extraction, may need adjustment)
+          TEMP_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.token')
+          
+          # Set the token as an environment variable for the next step
+          echo "CLOUDSMITH_TEMP_TOKEN=$TEMP_TOKEN" >> $GITHUB_ENV
+
       # Push package to Cloudsmith
       - name: Push package to Cloudsmith
+        env:
+          CLOUDSMITH_TEMP_TOKEN: ${{ env.CLOUDSMITH_TEMP_TOKEN }}
         run: |
           for package in dist/*.tar.gz dist/*.whl; do
             if [ -f "$package" ]; then
               echo "Publishing $package"
-              cloudsmith push python \
+              CLOUDSMITH_API_KEY="$CLOUDSMITH_TEMP_TOKEN" cloudsmith push python \
                 "${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_REPOSITORY }}" \
                 "$package" \
                 --republish
