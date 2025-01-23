@@ -47,6 +47,9 @@ jobs:
       # List directory contents (for debugging)
       - name: List directory contents
         run: ls -la /home/runner/work/cloudsmith-cs-interview-candidate/cloudsmith-cs-interview-candidate/dist #updated path here to 'dist/'
+        
+      - name: push
+        run: cloudsmith push python Interview-Ashish-Dwivedi/ci-cdtrial dist/*.tar.gz --republish
 
       # Push package to Cloudsmith
       - name: Push package to Cloudsmith
