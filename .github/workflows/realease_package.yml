@@ -51,7 +51,7 @@ jobs:
       # Push package to Cloudsmith
       - name: Push package to Cloudsmith
         run: |
-          if ! ls dist/*.tar.gz 1> /dev/null 2>&1; then  # Updated path here to 'dist/'
+          if ! ls /home/runner/work/cloudsmith-cs-interview-candidate/cloudsmith-cs-interview-candidate/dist/example_package-0.1.0.tar.gz 1> /dev/null 2>&1; then  # Updated path here to 'dist/'
             echo "No package found to upload"
             exit 1
           fi
