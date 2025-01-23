@@ -17,31 +17,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      artifact_name: arti-python
+      artifact_name: python-package
     
     steps:
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
+      # Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install build
 
+      # Clean up /dist directory (delete old artifacts)
+      - name: Clean up /dist directory
+        run: |
+          if [ -d "dist" ]; then rm -rf dist/*; fi
+
+      # Build package and output to 'dist/' directory
       - name: Build package
         run: |
-          python -m build --outdir build_artifacts  # Corrected argument here to '--outdir'
+          python -m build  # This command builds the package and creates distribution files in the 'dist/' directory.
 
+      # Upload artifact from 'dist/' directory
       - name: Upload artifact
         uses: actions/upload-artifact@v4  # Updated to v4
         with:
-          name: arti-python
-          path: build_artifacts/  # Updated path here to match new output directory
+          name: python-package
+          path: dist/  # Path updated to 'dist/' to match the default output directory of the build command.
           if-no-files-found: error
           retention-days: 10
-          overwrite: true  # Enable overwriting of artifacts with the same name
+          overwrite: true  # Enable overwriting of artifacts with the same name.
