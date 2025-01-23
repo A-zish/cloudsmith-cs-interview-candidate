@@ -1,7 +1,10 @@
 name: Publish Python Package
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Build Python Package"]
+    types:
+      - completed
     branches:
       - master
 
