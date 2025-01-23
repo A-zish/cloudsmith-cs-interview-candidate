@@ -46,7 +46,7 @@ jobs:
 
       # List directory contents (for debugging)
       - name: List directory contents
-        run: ls -la dist/  # Updated path here to 'dist/'
+        run: ls -la /home/runner/work/cloudsmith-cs-interview-candidate/cloudsmith-cs-interview-candidate/dist #updated path here to 'dist/'
 
       # Push package to Cloudsmith
       - name: Push package to Cloudsmith
