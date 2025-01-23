@@ -3,13 +3,13 @@ name: Build Python Package
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 permissions:
-  contents: read
+  contents: write
   actions: write
   id-token: write
 
@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      artifact_name: python-package
+      artifact_name: arti-python
     
     steps:
       - name: Checkout code
@@ -34,11 +34,14 @@ jobs:
           pip install build
 
       - name: Build package
+        run: |
+          python -m build --outdir build_artifacts  # Corrected argument here to '--outdir'
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
-          name: python-package
-          path: dist/
+          name: arti-python
+          path: build_artifacts/  # Updated path here to match new output directory
           if-no-files-found: error
-          retention-days: 5
+          retention-days: 10
+          overwrite: true  # Enable overwriting of artifacts with the same name
