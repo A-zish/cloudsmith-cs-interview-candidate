@@ -7,12 +7,13 @@ on:
 
 permissions:
   id-token: write  # Required for OIDC authentication
-  contents: read
+  contents: write
   actions: write
 
 env:
   CLOUDSMITH_NAMESPACE: Interview-Ashish-Dwivedi
   CLOUDSMITH_REPOSITORY: ci-cdtrial
+  CLOUDSMITH_SERVICE_SLUG: ci-cdtrial
 
 jobs:
   publish:
@@ -35,6 +36,10 @@ jobs:
         with:
           name: python-package
           path: dist/  # Updated path here to 'dist/'
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          
 
       # List directory contents (for debugging)
       - name: List directory contents
