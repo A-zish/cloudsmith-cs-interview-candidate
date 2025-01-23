@@ -14,7 +14,7 @@ permissions:
   actions: write
 
 env:
-  CLOUDSMITH_NAMESPACE: Interview-Ashish-Dwivedi
+  CLOUDSMITH_NAMESPACE: interview-ashish-dwivedi
   CLOUDSMITH_REPOSITORY: ci-cdtrial
   #CLOUDSMITH_SERVICE_SLUG: ci-cdtrial
 
