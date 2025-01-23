@@ -16,7 +16,7 @@ permissions:
 env:
   CLOUDSMITH_NAMESPACE: Interview-Ashish-Dwivedi
   CLOUDSMITH_REPOSITORY: ci-cdtrial
-  CLOUDSMITH_API: fcb2aefedb5552145793c1cfae1d28ac3f2528bd
+  #CLOUDSMITH_API: fcb2aefedb5552145793c1cfae1d28ac3f2528bd
 
 jobs:
   publish:
@@ -49,11 +49,16 @@ jobs:
         run: ls -la dist/
 
       # Push package to Cloudsmith using API key for authentication
-      - name: Push package to Cloudsmith
+      # Authenticate with Cloudsmith
+      - name: Authenticate with Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         run: |
-          if ! ls dist/*.tar.gz 1> /dev/null 2>&1; then
-            echo "No package found to upload"
-            exit 1
-          fi
-          cloudsmith login --api-key $CLOUDSMITH_API  # Authenticate using API key
+          cloudsmith whoami || cloudsmith login -u ${{ github.actor }}
+
+      # Push package to Cloudsmith
+      - name: Push package to Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+        run: |
           cloudsmith push python ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_REPOSITORY }} dist/*.tar.gz --republish
