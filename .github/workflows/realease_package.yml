@@ -1,48 +1,50 @@
 name: Publish Python Package
 
 on:
-  workflow_run:
-    workflows: ["Build Python Package"]
-    types:
-      - completed
+  push:
     branches:
-      - main
-
-env:
-  CLOUDSMITH_NAMESPACE: ${{ vars.CLOUDSMITH_NAMESPACE }}
-  CLOUDSMITH_REPOSITORY: "staging"
-  CLOUDSMITH_SERVICE_SLUG: ${{ vars.CLOUDSMITH_SERVICE_SLUG }}
+      - master
 
 permissions:
+  id-token: write  # Required for OIDC authentication
   contents: read
-  actions: read
+  actions: write
+
+env:
+  CLOUDSMITH_NAMESPACE: Interview-Ashish-Dwivedi
+  CLOUDSMITH_REPOSITORY: ci-cdtrial
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Install Cloudsmith CLI
+      - name: Install Cloudsmith CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install cloudsmith-cli
+
+      # Download artifact from previous workflow (if applicable)
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: python-package
-          path: dist
-          repository: ${{ github.repository }}
-          github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
+          name: arti-python
+          path: build_artifacts/  # Updated path here to 'build_artifacts/'
 
-
-
+      # List directory contents (for debugging)
       - name: List directory contents
-        run: ls -la dist/
-        shell: bash
+        run: ls -la build_artifacts/  # Updated path here to 'build_artifacts/'
 
+      # Push package to Cloudsmith
       - name: Push package to Cloudsmith
         run: |
-          if ! ls dist/*.tar.gz 1> /dev/null 2>&1; then
+          if ! ls build_artifacts/*.tar.gz 1> /dev/null 2>&1; then  # Updated path here to 'build_artifacts/'
             echo "No package found to upload"
             exit 1
           fi
-          cloudsmith push python ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_REPOSITORY }} dist/*.tar.gz --republish
-        shell: bash
+          cloudsmith push python ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_REPOSITORY }} build_artifacts/*.tar.gz --republish  # Updated path here to 'build_artifacts/'
